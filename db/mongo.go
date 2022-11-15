@@ -1,6 +1,6 @@
+//MongoDB Wrapper
 package db
 
-//MongoDB wrapper
 import (
 	"context"
 	"log"
@@ -11,10 +11,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Holds structures related to the MongoDB
 type DB struct {
 	client *mongo.Client
 }
 
+//Initialize the connection to MongoDB
 func InitMongoDB(ctx context.Context, uri string) (*DB, error) {
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(ctx, clientOptions)
@@ -28,27 +30,43 @@ func InitMongoDB(ctx context.Context, uri string) (*DB, error) {
 	return &db, nil
 }
 
+//Add a new game to the database, and check for existing entries
 func AddGame(db *DB, ctx context.Context, game platform.Game) error {
 	rexDatabase := db.client.Database("rex")
 	gamesCollection := rexDatabase.Collection("games")
 	//Check if file is already in the database.
-
 	filter := bson.D{{"path", game.Path}}
 	var readGame platform.Game
 	err := gamesCollection.FindOne(ctx, filter).Decode(&readGame)
-	if err != nil {
-		log.Fatal(err)
+
+	//If no document was returned, add the game to the database
+	if err == mongo.ErrNoDocuments {
+		_, err = gamesCollection.InsertOne(ctx, game)
+		log.Printf("Added %s to database", game.Name)
+		return err
 	}
-	log.Printf("%+v\n", readGame)
-	if readGame == game {
+
+	if err != nil {
+		return err
+	}
+
+	//If the game was found as its shown in the database, then nothing needs to be done.
+	if platform.CompareGames(game, readGame) {
 		log.Printf("%s found in database", game.Name)
 		return nil
+
+	} else { // If it was not, the old entry should be removed and a new one created
+		log.Printf("%s does not match entry found in Database... Overwriting", game.Name)
+		_, err := gamesCollection.DeleteOne(ctx, readGame)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = gamesCollection.InsertOne(ctx, game)
 	}
-	_, err = gamesCollection.InsertOne(ctx, game)
-	log.Printf("Added %s to database", game.Name)
 	return err
 }
 
+// Get every game in the database
 func GetAllGames(db *DB, ctx context.Context) ([]platform.Game, error) {
 	rexDatabase := db.client.Database("rex")
 	gamesCollection := rexDatabase.Collection("games")

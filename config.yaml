@@ -4,3 +4,12 @@ gameDirectories:
   gcn:
     - /games/gcn
 
+platforms:
+  - name: Gamecube
+    platform: gcn
+    directories:
+    - /games/gcn
+  - name: Wii
+    platform: wii
+    directories:
+    - /games/wii

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,14 +21,13 @@ import (
 
 var ctx = context.Background()
 var gamedb *db.DB
-var platforms []string
+var platforms []platform.Platform
 
 // @title Rex
 // @description Self Hostable Game Library
 // @host localhost:8080
 // @BasePath /
 // @schemes http
-
 func main() {
 
 	r := gin.Default()
@@ -39,7 +39,7 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	r.GET("/v1/ping", ping)
 	r.GET("/v1/games", getGames)
-	r.GET("/v1/platforms", getPlatforms)
+	//r.GET("/v1/platforms", getPlatforms)
 
 	r.Run()
 }
@@ -52,7 +52,13 @@ func startup() {
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	//err = viper.Unmarshal(&config)
+	platforms := viper.Get("platforms")
+	fmt.Printf("%+v\n", platforms)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,40 +69,24 @@ func startup() {
 }
 
 func findGames() {
-	// //Nintendo Wii
-	// wiiDirs := viper.GetStringSlice("gameDirectories.wii")
-	// if wiiDirs != nil {
-	// 	platforms = append(platforms, "wii")
-	// }
-
-	//Nintendo GameCube
-	gcnDirs := viper.GetStringSlice("gameDirectories.gcn")
-	if gcnDirs != nil {
-		platforms = append(platforms, "gcn")
-	}
-	log.Printf("Finding Gamecube Games")
-	for _, dir := range gcnDirs {
-		files, err := ioutil.ReadDir(dir)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, file := range files {
-			log.Printf("Found file %s", dir+"/"+file.Name())
-			game := platform.WrapGamecube(platform.IdentifyGamecube(dir + "/" + file.Name()))
-			log.Printf("Identified %s as %s", game.Path, game.Name)
-			err = db.AddGame(gamedb, ctx, game)
+	for _, platform := range platforms {
+		log.Printf("Finding %s", platform.Name)
+		for _, dir := range platform.Directories {
+			files, err := ioutil.ReadDir(dir)
 			if err != nil {
 				log.Fatal(err)
 			}
-
+			for _, file := range files {
+				log.Printf("Found file %s", dir+"/"+file.Name())
+				game := IdentifyGameByPlatform(platform.Platform, dir+"/"+file.Name())
+				log.Printf("Identified %s as %s", game.Path, game.Name)
+				err = db.AddGame(gamedb, ctx, game)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 		}
 	}
-
-	// //Nintendo 64
-	// n64Dirs := viper.GetStringSlice("gameDirectories.n64")
-	// if n64Dirs != nil {
-	// 	platforms = append(platforms, "n64")
-	// }
 }
 
 // ping godoc
@@ -132,6 +122,6 @@ func getGames(c *gin.Context) {
 // @Produce json
 // @Sucess 200
 // @Router /v1/platforms [get]
-func getPlatforms(c *gin.Context) {
-	c.JSON(http.StatusOK, platforms)
-}
+// func getPlatforms(c *gin.Context) {
+// 	c.JSON(http.StatusOK, platforms)
+// }
