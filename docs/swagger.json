@@ -1,0 +1,49 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Self Hostable Game Library",
+        "title": "Rex",
+        "contact": {}
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/v1/games": {
+            "get": {
+                "description": "Get a list of all of the games that Rex can find",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get All Games",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/v1/ping": {
+            "get": {
+                "description": "Pong!",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Ping!",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

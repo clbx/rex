@@ -1,0 +1,6 @@
+cacheDir: /cache/
+
+gameDirectories:
+  gcn:
+    - /games/gcn
+

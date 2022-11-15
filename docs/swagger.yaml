@@ -1,0 +1,32 @@
+basePath: /
+host: localhost:8080
+info:
+  contact: {}
+  description: Self Hostable Game Library
+  title: Rex
+paths:
+  /v1/games:
+    get:
+      description: Get a list of all of the games that Rex can find
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get All Games
+  /v1/ping:
+    get:
+      consumes:
+      - '*/*'
+      description: Pong!
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Ping!
+schemes:
+- http
+swagger: "2.0"
