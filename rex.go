@@ -19,9 +19,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+type config struct {
+	platforms []platform.Platform
+	cacheDir  string
+}
+
 var ctx = context.Background()
 var gamedb *db.DB
-var platforms []platform.Platform
+var conf *config
 
 // @title Rex
 // @description Self Hostable Game Library
@@ -56,12 +61,13 @@ func startup() {
 		log.Fatal(err)
 	}
 
-	//err = viper.Unmarshal(&config)
-	platforms := viper.Get("platforms")
-	fmt.Printf("%+v\n", platforms)
+	conf := config{}
+	err = viper.Unmarshal(&conf)
 	if err != nil {
 		log.Fatal(err)
 	}
+	//platforms := []platform.Platform(viper.Get("platforms"))
+	fmt.Printf("%+v\n", conf.platforms)
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	gamedb, err = db.InitMongoDB(ctx, "mongodb://mongodb:27017")
@@ -69,17 +75,22 @@ func startup() {
 }
 
 func findGames() {
-	for _, platform := range platforms {
-		log.Printf("Finding %s", platform.Name)
-		for _, dir := range platform.Directories {
+	for _, p := range conf.platforms {
+		log.Printf("Finding %s", p.Name)
+		for _, dir := range p.Directories {
 			files, err := ioutil.ReadDir(dir)
 			if err != nil {
 				log.Fatal(err)
 			}
 			for _, file := range files {
+
 				log.Printf("Found file %s", dir+"/"+file.Name())
-				game := IdentifyGameByPlatform(platform.Platform, dir+"/"+file.Name())
-				log.Printf("Identified %s as %s", game.Path, game.Name)
+
+				game, err := platform.IdenfityGameByPlatform(p, dir+"/"+file.Name())
+				if err != nil {
+					log.Fatal(err)
+				}
+
 				err = db.AddGame(gamedb, ctx, game)
 				if err != nil {
 					log.Fatal(err)

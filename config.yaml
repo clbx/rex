@@ -1,9 +1,4 @@
 cacheDir: /cache/
-
-gameDirectories:
-  gcn:
-    - /games/gcn
-
 platforms:
   - name: Gamecube
     platform: gcn

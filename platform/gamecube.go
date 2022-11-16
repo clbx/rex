@@ -28,7 +28,8 @@ type Gamecube struct {
 // Parameters
 // path  The path to the ISO
 // returns Gamecube object of the game
-func IdentifyGamecube(path string) Gamecube {
+// TODO: Add error handling (lots of it)
+func IdentifyGamecube(path string) Game {
 
 	//Load ISO
 	iso, err := os.Open(path)
@@ -82,7 +83,7 @@ func IdentifyGamecube(path string) Gamecube {
 	// 0x18a0 - 0x18df Company/Developer Full Name or Description
 	// 0x18e0 - 0x195f Game Descriptions
 
-	game := Gamecube{
+	gameGcn := Gamecube{
 		IsoShortName:                util.ReadNullTerminatedString(iso, int(openingOffset+0x1820)),
 		IsoShortDeveloper:           util.ReadNullTerminatedString(iso, int(openingOffset+0x1840)),
 		IsoLongName:                 util.ReadNullTerminatedString(iso, int(openingOffset+0x1860)),
@@ -91,16 +92,13 @@ func IdentifyGamecube(path string) Gamecube {
 		Path:                        path,
 	}
 
+	game := Game{
+		//Id:       util.GetFileMD5(game.Path),
+		Name:     gameGcn.IsoLongName,
+		Platform: "gcn",
+		Path:     gameGcn.Path,
+	}
+
 	return game
 
-}
-
-func WrapGamecube(game Gamecube) Game {
-	wrapped := Game{
-		//Id:       util.GetFileMD5(game.Path),
-		Name:     game.IsoLongName,
-		Platform: "gcn",
-		Path:     game.Path,
-	}
-	return wrapped
 }
