@@ -6,7 +6,7 @@ Self-Hostable Game Library
 
 Rex is a self-hostable game library to organize, display, and make games accessible. 
 
-Rex is mostly focued on ROMs, but also has support for DRM Free PC Games. 
+Rex is mostly focued on ROMs, but technically has support for any game or software
 
 Current Development Plan (0.1):
 - [ ] Get Game Identification Working for a few platforms (N64, GCN, Wii)
