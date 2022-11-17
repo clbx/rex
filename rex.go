@@ -11,6 +11,7 @@ import (
 	"github.com/clbx/rex/db"
 	_ "github.com/clbx/rex/docs"
 	"github.com/clbx/rex/platform"
+	"github.com/clbx/rex/search"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -19,14 +20,12 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-type config struct {
-	platforms []platform.Platform
-	cacheDir  string
-}
+var platforms []platform.Platform
 
 var ctx = context.Background()
 var gamedb *db.DB
-var conf *config
+var twitch_key string
+var twitch_secret string
 
 // @title Rex
 // @description Self Hostable Game Library
@@ -61,13 +60,20 @@ func startup() {
 		log.Fatal(err)
 	}
 
-	conf := config{}
-	err = viper.Unmarshal(&conf)
+	err = viper.UnmarshalKey("platforms", &platforms)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	twitch_key = viper.GetString("twitch-api-key")
+
+	igdb := search.IGDB{
+		Twitch_client_secret: viper.GetString("search.IDGB.twitch-client-secret"),
+		Twitch_client_id:     viper.GetString("search.IGDB.twitch-client-id"),
+	}
+
 	//platforms := []platform.Platform(viper.Get("platforms"))
-	fmt.Printf("%+v\n", conf.platforms)
+	fmt.Printf("%+v\n", platforms)
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	gamedb, err = db.InitMongoDB(ctx, "mongodb://mongodb:27017")
@@ -75,8 +81,7 @@ func startup() {
 }
 
 func findGames() {
-	for _, p := range conf.platforms {
-		log.Printf("Finding %s", p.Name)
+	for _, p := range platforms {
 		for _, dir := range p.Directories {
 			files, err := ioutil.ReadDir(dir)
 			if err != nil {
@@ -90,7 +95,6 @@ func findGames() {
 				if err != nil {
 					log.Fatal(err)
 				}
-
 				err = db.AddGame(gamedb, ctx, game)
 				if err != nil {
 					log.Fatal(err)

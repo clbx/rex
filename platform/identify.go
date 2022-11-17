@@ -15,7 +15,7 @@ func IdenfityGameByPlatform(platform Platform, loc string) (Game, error) {
 	split := strings.Split(loc, "\\")
 	filename := split[len(split)-1]
 
-	if val, ok := identMap[platform.Name]; ok {
+	if val, ok := identMap[platform.Platform]; ok {
 		game := val(loc)
 		log.Printf("%s game idenfitied as %s", platform.Name, game.Name)
 		return game, nil
@@ -24,7 +24,7 @@ func IdenfityGameByPlatform(platform Platform, loc string) (Game, error) {
 	//This is temporary
 	game := Game{
 		Name:     filename,
-		Platform: platform.Name,
+		Platform: platform.Platform,
 		Path:     loc,
 	}
 	log.Printf("%s platform not supported, falling back to file name.", platform.Name)
