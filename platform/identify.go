@@ -6,7 +6,7 @@ import (
 )
 
 // Map of supported platforms to identification function.
-var identMap = map[string]func(string) Game{
+var identMap = map[string]func(Platform, string) Game{
 	"gcn": IdentifyGamecube,
 }
 
@@ -16,7 +16,7 @@ func IdenfityGameByPlatform(platform Platform, loc string) (Game, error) {
 	filename := split[len(split)-1]
 
 	if val, ok := identMap[platform.Platform]; ok {
-		game := val(loc)
+		game := val(platform, loc)
 		log.Printf("%s game idenfitied as %s", platform.Name, game.Name)
 		return game, nil
 	}
@@ -24,7 +24,7 @@ func IdenfityGameByPlatform(platform Platform, loc string) (Game, error) {
 	//This is temporary
 	game := Game{
 		Name:     filename,
-		Platform: platform.Platform,
+		Platform: platform,
 		Path:     loc,
 	}
 	log.Printf("%s platform not supported, falling back to file name.", platform.Name)

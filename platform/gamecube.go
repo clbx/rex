@@ -29,7 +29,7 @@ type Gamecube struct {
 // path  The path to the ISO
 // returns Gamecube object of the game
 // TODO: Add error handling (lots of it)
-func IdentifyGamecube(path string) Game {
+func IdentifyGamecube(platform Platform, path string) Game {
 
 	//Load ISO
 	iso, err := os.Open(path)
@@ -95,7 +95,7 @@ func IdentifyGamecube(path string) Game {
 	game := Game{
 		//Id:       util.GetFileMD5(game.Path),
 		Name:     gameGcn.IsoLongName,
-		Platform: "gcn",
+		Platform: platform,
 		Path:     gameGcn.Path,
 	}
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,8 +23,7 @@ var platforms []platform.Platform
 
 var ctx = context.Background()
 var gamedb *db.DB
-var twitch_key string
-var twitch_secret string
+var apikey = "f8e8aae3d8fdcd3d4d29c1e2a65d899410001610d398afd6df7964fa1b527e1a"
 
 // @title Rex
 // @description Self Hostable Game Library
@@ -65,15 +63,8 @@ func startup() {
 		log.Fatal(err)
 	}
 
-	twitch_key = viper.GetString("twitch-api-key")
-
-	igdb := search.IGDB{
-		Twitch_client_secret: viper.GetString("search.IDGB.twitch-client-secret"),
-		Twitch_client_id:     viper.GetString("search.IGDB.twitch-client-id"),
-	}
-
 	//platforms := []platform.Platform(viper.Get("platforms"))
-	fmt.Printf("%+v\n", platforms)
+	//fmt.Printf("%+v\n", platforms)
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	gamedb, err = db.InitMongoDB(ctx, "mongodb://mongodb:27017")
@@ -92,6 +83,7 @@ func findGames() {
 				log.Printf("Found file %s", dir+"/"+file.Name())
 
 				game, err := platform.IdenfityGameByPlatform(p, dir+"/"+file.Name())
+				search.TGDBsearchGameByName(apikey, game.Name)
 				if err != nil {
 					log.Fatal(err)
 				}

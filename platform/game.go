@@ -3,9 +3,13 @@ package platform
 //Master class, all games have one of these.
 
 type Game struct {
-	Name     string `bson:"name,omitempty"`
-	Platform string `bson:"platform,omitempty"`
-	Path     string `bson:"path,omitempty"`
+	Name        string   `bson:"name,omitempty"`
+	Platform    Platform `bson:"platform,omitempty"`
+	TGDBID      int      `bson:"TGDBID,omitempty"`
+	Path        string   `bson:"path,omitempty"`
+	ReleaseDate string   `bson:"releasedate,omitempty"`
+	Region      string   `bson:"region,omitempty"`
+	Overview    string   `bson:"overview,omitempty"`
 }
 
 func CompareGames(game0 Game, game1 Game) bool {
@@ -13,7 +17,7 @@ func CompareGames(game0 Game, game1 Game) bool {
 		return false
 	}
 
-	if game0.Platform != game1.Platform {
+	if game0.Platform.Name != game1.Platform.Name {
 		return false
 	}
 
