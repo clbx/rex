@@ -83,7 +83,7 @@ func findGames() {
 				log.Printf("Found file %s", dir+"/"+file.Name())
 
 				game, err := platform.IdenfityGameByPlatform(p, dir+"/"+file.Name())
-				search.TGDBsearchGameByName(apikey, game.Name)
+				search.TGDBsearchGameByName(apikey, game)
 				if err != nil {
 					log.Fatal(err)
 				}
