@@ -4,18 +4,18 @@ services:
     build: .
     ports: 
     - "8080:8080"
+    environment:
+    - PORT=8080
+    - GIN_MODE=release
     volumes:
     - ./testdir:/games
     - ./config.yaml:/config/config.yaml
   mongodb:
     image: mongo:latest
-    command: --quiet
+    command: mongod --quiet --logpath /dev/null 
     ports:
     - 27017:27017
     volumes:
     - mongo_data:/data/db
 volumes:
   mongo_data: 
-secrets:
-  twitch-key:
-    file: twitch-key.txt

@@ -3,13 +3,13 @@ package platform
 //Master class, all games have one of these.
 
 type Game struct {
-	Name        string   `bson:"name,omitempty"`
-	Platform    Platform `bson:"platform,omitempty"`
-	TGDBID      int      `bson:"TGDBID,omitempty"`
-	Path        string   `bson:"path,omitempty"`
-	ReleaseDate string   `bson:"releasedate,omitempty"`
-	Region      string   `bson:"region,omitempty"`
-	Overview    string   `bson:"overview,omitempty"`
+	Name           string   `bson:"name,omitempty"`
+	Platform       Platform `bson:"platform,omitempty"`
+	TGDBID         int      `bson:"TGDBID,omitempty"`
+	Path           string   `bson:"path,omitempty"`
+	ReleaseDate    string   `bson:"releasedate,omitempty"`
+	Overview       string   `bson:"overview,omitempty"`
+	TGDBArtFilname string   `bson:"tdgbartfilename,omitempty"`
 }
 
 func CompareGames(game0 Game, game1 Game) bool {

@@ -2,7 +2,6 @@ package platform
 
 import (
 	"log"
-	"strings"
 )
 
 // Map of supported platforms to identification function.
@@ -11,13 +10,12 @@ var identMap = map[string]func(Platform, string) Game{
 }
 
 //TODO: Add error handling
-func IdenfityGameByPlatform(platform Platform, loc string) (Game, error) {
-	split := strings.Split(loc, "\\")
-	filename := split[len(split)-1]
+func IdenfityGameByPlatform(platform Platform, dir string, filename string) (Game, error) {
+	loc := dir + "/" + filename
 
 	if val, ok := identMap[platform.Platform]; ok {
 		game := val(platform, loc)
-		log.Printf("%s game idenfitied as %s", platform.Name, game.Name)
+		log.Printf("[%s][%s] Game idenfitied as %s", platform.Name, game.Name, game.Name)
 		return game, nil
 	}
 	//Not in supported handlers, so generic handler is used.
@@ -27,6 +25,6 @@ func IdenfityGameByPlatform(platform Platform, loc string) (Game, error) {
 		Platform: platform,
 		Path:     loc,
 	}
-	log.Printf("%s platform not supported, falling back to file name.", platform.Name)
+	log.Printf("[%s][%s] Platform not supported, falling back to file name.", platform.Name, game.Name)
 	return game, nil
 }

@@ -42,7 +42,7 @@ func AddGame(db *DB, ctx context.Context, game platform.Game) error {
 	//If no document was returned, add the game to the database
 	if err == mongo.ErrNoDocuments {
 		_, err = gamesCollection.InsertOne(ctx, game)
-		log.Printf("Added %s to database", game.Name)
+		log.Printf("[%s][%s] Added to database", game.Platform.Name, game.Name)
 		return err
 	}
 
@@ -52,11 +52,11 @@ func AddGame(db *DB, ctx context.Context, game platform.Game) error {
 
 	//If the game was found as its shown in the database, then nothing needs to be done.
 	if platform.CompareGames(game, readGame) {
-		log.Printf("%s found in database", game.Name)
+		log.Printf("[%s][%s] Found in database", game.Platform.Name, game.Name)
 		return nil
 
 	} else { // If it was not, the old entry should be removed and a new one created
-		log.Printf("%s does not match entry found in Database... Overwriting", game.Name)
+		log.Printf("[%s][%s] Does not match entry found in Database... Overwriting", game.Platform.Name, game.Name)
 		_, err := gamesCollection.DeleteOne(ctx, readGame)
 		if err != nil {
 			log.Fatal(err)

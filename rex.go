@@ -80,10 +80,10 @@ func findGames() {
 			}
 			for _, file := range files {
 
-				log.Printf("Found file %s", dir+"/"+file.Name())
+				log.Printf("[%s] Found file %s", p.Name, dir+"/"+file.Name())
 
-				game, err := platform.IdenfityGameByPlatform(p, dir+"/"+file.Name())
-				search.TGDBsearchGameByName(apikey, game)
+				game, err := platform.IdenfityGameByPlatform(p, dir, file.Name())
+				game = search.TGDBsearchGameByName(apikey, game)
 				if err != nil {
 					log.Fatal(err)
 				}

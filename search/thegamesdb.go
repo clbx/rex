@@ -2,7 +2,6 @@ package search
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,6 +9,12 @@ import (
 
 	"github.com/clbx/rex/platform"
 )
+
+var originalURL = "https://cdn.thegamesdb.net/images/original/"
+var smallURL = "https://cdn.thegamesdb.net/images/small/"
+var thumbURL = "https://cdn.thegamesdb.net/images/thumb/"
+var boxartFrontPath = "boxart/front/"
+var boxartBackPath = "boxart/back/"
 
 type TGDBResponse struct {
 	Code                      int       `json:"code"`
@@ -49,10 +54,11 @@ var PlatformMapping = map[string]int{
 	"gcn": 2,
 }
 
-func TGDBsearchGameByName(apikey string, game platform.Game) {
+func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 	req := "https://api.thegamesdb.net/v1/Games/ByGameName?apikey=" + url.QueryEscape(apikey) +
 		"&name=" + url.QueryEscape(game.Name) +
-		"&fields=" + url.QueryEscape("players, publishers, genres, overview, last_updated, rating, platform, coop, youtube, os, processor, ram, hdd, video, sound, alternates,overview,rating")
+		"&fields=" + url.QueryEscape("players, publishers, genres, overview, last_updated, rating, platform, coop, youtube, os, processor, ram, hdd, video, sound, alternates,overview,rating") +
+		"&include=" + url.QueryEscape("boxart")
 	//fmt.Println(req)
 
 	tgdbResp := &TGDBResponse{}
@@ -63,15 +69,34 @@ func TGDBsearchGameByName(apikey string, game platform.Game) {
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
-	fmt.Printf("\n\n REQ %s", req)
-	fmt.Printf("\n\n BODY %s", body)
-	//json.NewDecoder(res.Body).Decode(tgdbResp)
 	err = json.Unmarshal(body, &tgdbResp)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//If game is returned for multiple platforms, return the one for the current platform and game region.
+	//fmt.Printf("\n\n TGDB %+v\n", tgdbResp)
 
-	fmt.Printf("\n\n TGDB %+v\n", tgdbResp)
+	//Get image filename.
+
+	//If there are no games, just return what was put in.
+	if tgdbResp.Data.Count == 0 {
+		log.Printf("GAME NOT FOUND")
+		return game
+	}
+
+	//If game is returned for multiple platforms, return the one for the current platform and game region.
+	// TODO: Implement Region Filtering. Right now just search for US games (Presumably 1 in TGDB??)
+	if tgdbResp.Data.Count > 1 {
+		log.Printf("MULTIPLE GAMES RECEVIED")
+		return game
+	}
+
+	return platform.Game{
+		Name:        tgdbResp.Data.Games[0].GameTitle,
+		Platform:    game.Platform,
+		TGDBID:      tgdbResp.Data.Games[0].ID,
+		Path:        game.Path,
+		ReleaseDate: tgdbResp.Data.Games[0].ReleaseDate,
+		Overview:    tgdbResp.Data.Games[0].Overview,
+	}
 }
