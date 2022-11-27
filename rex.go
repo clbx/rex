@@ -25,6 +25,20 @@ var ctx = context.Background()
 var gamedb *db.DB
 var apikey = "f8e8aae3d8fdcd3d4d29c1e2a65d899410001610d398afd6df7964fa1b527e1a"
 
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST,HEAD,PATCH, OPTIONS, GET, PUT")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
+}
+
 // @title Rex
 // @description Self Hostable Game Library
 // @host localhost:8080
@@ -33,6 +47,7 @@ var apikey = "f8e8aae3d8fdcd3d4d29c1e2a65d899410001610d398afd6df7964fa1b527e1a"
 func main() {
 
 	r := gin.Default()
+	r.Use(CORSMiddleware())
 
 	startup()
 	findGames()
@@ -41,7 +56,7 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	r.GET("/v1/ping", ping)
 	r.GET("/v1/games", getGames)
-	//r.GET("/v1/platforms", getPlatforms)
+	r.GET("/v1/platforms", getPlatforms)
 
 	r.Run()
 }
@@ -129,6 +144,6 @@ func getGames(c *gin.Context) {
 // @Produce json
 // @Sucess 200
 // @Router /v1/platforms [get]
-// func getPlatforms(c *gin.Context) {
-// 	c.JSON(http.StatusOK, platforms)
-// }
+func getPlatforms(c *gin.Context) {
+	c.JSON(http.StatusOK, platforms)
+}
