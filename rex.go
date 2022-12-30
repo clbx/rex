@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/clbx/rex/db"
@@ -57,6 +58,15 @@ func main() {
 	r.GET("/v1/ping", ping)
 	r.GET("/v1/games", getGames)
 	r.GET("/v1/platforms", getPlatforms)
+	r.GET("/cache/:filename", func(c *gin.Context) {
+		fileName := c.Param("filename")
+		targetPath := filepath.Join("/cache/", fileName)
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", "attachment; filename="+fileName)
+		c.Header("Content-Type", "application/octet-stream")
+		c.File(targetPath)
+	})
 
 	r.Run()
 }

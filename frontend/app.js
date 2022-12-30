@@ -51,6 +51,15 @@ function makeGameGrid(data) {
         }
         var currentCol = document.createElement("div")
         currentCol.classList.add("col")
+        var elem = document.createElement("img")
+        if(item.BoxartFrontPath != ""){
+            elem.src = "http://localhost:8080" + item.BoxartFrontPath
+        }
+        else{
+            elem.src = "assets/unknown.jpg"
+        }
+        elem.width="250"
+        currentCol.appendChild(elem)
         currentCol.appendChild(document.createTextNode(item.Name))
         currentRow.appendChild(currentCol)
         index += 1

@@ -1,5 +1,6 @@
 .DS_Store
 testdir/
+cache/
 config.yaml
 
 node_modules/

@@ -2,10 +2,14 @@ package search
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 
 	"github.com/clbx/rex/platform"
 )
@@ -17,13 +21,14 @@ var boxartFrontPath = "boxart/front/"
 var boxartBackPath = "boxart/back/"
 
 type TGDBResponse struct {
-	Code                      int       `json:"code"`
-	Status                    string    `json:"status"`
-	Data                      TGDBData  `json:"data"`
-	Pages                     TGDBPages `json:"pages"`
-	RemainingMonthlyAllowance int       `json:"remaining_monthly_allowance"`
-	ExtraAllowance            int       `json:"extra_allowance"`
-	AllowanceRefreshTimer     int       `json:"allowance_refresh_timer"`
+	Code                      int                    `json:"code"`
+	Status                    string                 `json:"status"`
+	Data                      TGDBData               `json:"data"`
+	Pages                     TGDBPages              `json:"pages"`
+	Include                   map[string]interface{} `json:"include"`
+	RemainingMonthlyAllowance int                    `json:"remaining_monthly_allowance"`
+	ExtraAllowance            int                    `json:"extra_allowance"`
+	AllowanceRefreshTimer     int                    `json:"allowance_refresh_timer"`
 }
 
 type TGDBData struct {
@@ -54,6 +59,7 @@ var PlatformMapping = map[string]int{
 	"gcn": 2,
 }
 
+//TODO: Split this up into get ID and get Game
 func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 	req := "https://api.thegamesdb.net/v1/Games/ByGameName?apikey=" + url.QueryEscape(apikey) +
 		"&name=" + url.QueryEscape(game.Name) +
@@ -76,8 +82,6 @@ func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 
 	//fmt.Printf("\n\n TGDB %+v\n", tgdbResp)
 
-	//Get image filename.
-
 	//If there are no games, just return what was put in.
 	if tgdbResp.Data.Count == 0 {
 		log.Printf("GAME NOT FOUND")
@@ -91,12 +95,38 @@ func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 		return game
 	}
 
+	//Get image filename.
+	originalSize := tgdbResp.Include["boxart"].(map[string]interface{})["base_url"].(map[string]interface{})["original"]
+	front := tgdbResp.Include["boxart"].(map[string]interface{})["data"].(map[string]interface{})[strconv.Itoa(tgdbResp.Data.Games[0].ID)].([]interface{})[0].(map[string]interface{})["filename"]
+	//back := tgdbResp.Include["boxart"].(map[string]interface{})["data"].(map[string]interface{})[strconv.Itoa(tgdbResp.Data.Games[0].ID)].([]interface{})[1].(map[string]interface{})["filename"]
+	//fmt.Printf("\noriginal: %s\n  front: %s\n  back: %s\n", originalSize, front, back)
+
+	//Get Images
+	filepath := fmt.Sprintf("/cache/front-%s.jpg", strconv.Itoa(tgdbResp.Data.Games[0].ID))
+	out, err := os.Create(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+
+	resp, err := http.Get(fmt.Sprintf("%v%v", originalSize, front))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return platform.Game{
-		Name:        tgdbResp.Data.Games[0].GameTitle,
-		Platform:    game.Platform,
-		TGDBID:      tgdbResp.Data.Games[0].ID,
-		Path:        game.Path,
-		ReleaseDate: tgdbResp.Data.Games[0].ReleaseDate,
-		Overview:    tgdbResp.Data.Games[0].Overview,
+		Name:            tgdbResp.Data.Games[0].GameTitle,
+		Platform:        game.Platform,
+		TGDBID:          tgdbResp.Data.Games[0].ID,
+		Path:            game.Path,
+		ReleaseDate:     tgdbResp.Data.Games[0].ReleaseDate,
+		Overview:        tgdbResp.Data.Games[0].Overview,
+		BoxartFrontPath: fmt.Sprintf("/cache/front-%s.jpg", strconv.Itoa(tgdbResp.Data.Games[0].ID)),
 	}
 }
