@@ -57,6 +57,7 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	r.GET("/v1/ping", ping)
 	r.GET("/v1/games", getGames)
+	r.GET("/v1/games/byId", getGamesById)
 	r.GET("/v1/platforms", getPlatforms)
 	r.GET("/cache/:filename", func(c *gin.Context) {
 		fileName := c.Param("filename")
@@ -146,6 +147,25 @@ func getGames(c *gin.Context) {
 		log.Fatal(err)
 	}
 	c.JSON(http.StatusOK, allGames)
+}
+
+// getGames godoc
+// @Summary Get game by UUID
+// @Description Get a game by UUID
+// @Produce json
+// @Success 200
+// @Router /v1/games/byId
+func getGamesById(c *gin.Context) {
+	gameId := c.Query("id")
+	if gameId == "" {
+		c.JSON(http.StatusBadRequest, "No UUID provided with game")
+		return
+	}
+	game, err := db.GetGameByID(gamedb, ctx, gameId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	c.JSON(http.StatusOK, game)
 }
 
 // getPlatforms godoc

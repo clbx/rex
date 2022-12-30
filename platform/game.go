@@ -3,6 +3,7 @@ package platform
 //Master class, all games have one of these.
 
 type Game struct {
+	ID              string   `bson:"id,omitempty"`
 	Name            string   `bson:"name,omitempty"`
 	Platform        Platform `bson:"platform,omitempty"`
 	TGDBID          int      `bson:"TGDBID,omitempty"`

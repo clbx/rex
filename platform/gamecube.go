@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/clbx/rex/util"
+	"github.com/google/uuid"
 )
 
 // Gamecube Struct
@@ -93,7 +94,7 @@ func IdentifyGamecube(platform Platform, path string) Game {
 	}
 
 	game := Game{
-		//Id:       util.GetFileMD5(game.Path),
+		ID:       uuid.New().String(),
 		Name:     gameGcn.IsoLongName,
 		Platform: platform,
 		Path:     gameGcn.Path,

@@ -121,6 +121,7 @@ func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 	}
 
 	return platform.Game{
+		ID:              game.ID,
 		Name:            tgdbResp.Data.Games[0].GameTitle,
 		Platform:        game.Platform,
 		TGDBID:          tgdbResp.Data.Games[0].ID,

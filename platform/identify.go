@@ -2,6 +2,8 @@ package platform
 
 import (
 	"log"
+
+	"github.com/google/uuid"
 )
 
 // Map of supported platforms to identification function.
@@ -21,6 +23,7 @@ func IdenfityGameByPlatform(platform Platform, dir string, filename string) (Gam
 	//Not in supported handlers, so generic handler is used.
 	//This is temporary
 	game := Game{
+		ID:       uuid.New().String(),
 		Name:     filename,
 		Platform: platform,
 		Path:     loc,
