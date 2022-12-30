@@ -40,29 +40,50 @@ function makeGameGrid(data) {
     var index = 0
     var currentRow = document.createElement("div")
     currentRow.classList.add("row")
+    currentRow.classList.add("p-3")
     topGridDiv.appendChild(currentRow)
-    data.forEach(function (item) {
+    data.forEach(function (game) {
         if (index == 4) {
             //Append row, and create a new one
             topGridDiv.appendChild(currentRow)
             currentRow = document.createElement("div")
             currentRow.classList.add("row")
+            currentRow.classList.add("p-3")
             index = 0
         }
-        var currentCol = document.createElement("div")
-        currentCol.classList.add("col")
-        var elem = document.createElement("img")
-        if(item.BoxartFrontPath != ""){
-            elem.src = "http://localhost:8080" + item.BoxartFrontPath
-        }
-        else{
-            elem.src = "assets/unknown.jpg"
-        }
-        elem.width="250"
-        currentCol.appendChild(elem)
-        currentCol.appendChild(document.createTextNode(item.Name))
-        currentRow.appendChild(currentCol)
+        currentRow.appendChild(makeGame(game))
         index += 1
     })
     topGridDiv.appendChild(currentRow)
+}
+
+/**
+ * 
+ * @param {*} game The game object returned from the server
+ * @returns A div for the game
+ */
+function makeGame(game){
+    var gameIcon = document.createElement("div")
+
+    gameIcon.classList.add("container")
+    gameIcon.classList.add("col")
+    
+    var elem = document.createElement("img")
+    elem.width = "200"
+    
+    
+
+    if(game.BoxartFrontPath != "") {
+        elem.src = "http://localhost:8080" + game.BoxartFrontPath
+        gameIcon.appendChild(elem)
+    }
+    else {
+        elem.src = "assets/unknown.jpg"
+        var text = document.createElement("div")
+        text.classList.add("centered")
+        text.appendChild(document.createTextNode(game.Name))
+        gameIcon.appendChild(elem)
+        gameIcon.appendChild(text)
+    }
+    return gameIcon
 }
