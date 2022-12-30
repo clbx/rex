@@ -86,18 +86,22 @@ func GetAllGames(db *DB, ctx context.Context) ([]platform.Game, error) {
 	return allGames, nil
 }
 
-func GetGameByID(db *DB, ctx context.Context, uuid string) (platform.Game, error) {
+func GetGameByID(db *DB, ctx context.Context, uuid string) ([]platform.Game, error) {
 	rexDatabase := db.client.Database("rex")
 	gameCollection := rexDatabase.Collection("games")
-	cursor, err := gameCollection.Find(ctx, bson.M{"id": uuid})
+
+	gameCursor, err := gameCollection.Find(ctx, bson.M{"id": uuid})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	var game platform.Game
-	defer cursor.Close(ctx)
-	cursor.Next(ctx)
-	if err = cursor.Decode(&game); err != nil {
-		log.Fatal(err)
+
+	var games []platform.Game
+
+	err = gameCursor.All(ctx, &games)
+	if err != nil {
+		return nil, err
 	}
-	return game, nil
+
+	return games, nil
+
 }

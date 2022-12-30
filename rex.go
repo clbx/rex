@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -144,8 +145,10 @@ func ping(c *gin.Context) {
 func getGames(c *gin.Context) {
 	allGames, err := db.GetAllGames(gamedb, ctx)
 	if err != nil {
+		fmt.Printf("HERE1.5\n")
 		log.Fatal(err)
 	}
+	fmt.Printf("HERE2\n")
 	c.JSON(http.StatusOK, allGames)
 }
 
@@ -165,7 +168,10 @@ func getGamesById(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	c.JSON(http.StatusOK, game)
+
+	//TODO: check if more than one, there never should be, need to figure out mongo better
+
+	c.JSON(http.StatusOK, game[0])
 }
 
 // getPlatforms godoc
