@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/clbx/rex/db"
@@ -69,6 +70,7 @@ func main() {
 		c.Header("Content-Type", "application/octet-stream")
 		c.File(targetPath)
 	})
+	r.POST("/v1/games/setGameById", setGameById)
 
 	r.Run()
 }
@@ -99,18 +101,30 @@ func startup() {
 }
 
 func findGames() {
+	// Iterate through every platform
 	for _, p := range platforms {
+		// Iterate through every directory that is a part of every platform
 		for _, dir := range p.Directories {
 			files, err := ioutil.ReadDir(dir)
 			if err != nil {
 				log.Fatal(err)
 			}
+			// Iterate through every file in directory
 			for _, file := range files {
 
 				log.Printf("[%s] Found file %s", p.Name, dir+"/"+file.Name())
 
+				// Attempt to Identify the Game by Platform Specific Information
 				game, err := platform.IdenfityGameByPlatform(p, dir, file.Name())
-				game = search.TGDBsearchGameByName(apikey, game)
+
+				// Search the game in TGDB
+				//TODO: Filter for multiple IDs
+				ids := search.TGDBsearchGameByName(apikey, game)
+				fmt.Printf("ID: %d", ids[0])
+				if ids[0] != -1 {
+					game = search.TGDBsearchGameByID(apikey, ids[0], game)
+				}
+				//spew.Dump(game)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -157,7 +171,7 @@ func getGames(c *gin.Context) {
 // @Description Get a game by UUID
 // @Produce json
 // @Success 200
-// @Router /v1/games/byId
+// @Router /v1/games/byId [get]
 func getGamesById(c *gin.Context) {
 	gameId := c.Query("id")
 	if gameId == "" {
@@ -170,8 +184,32 @@ func getGamesById(c *gin.Context) {
 	}
 
 	//TODO: check if more than one, there never should be, need to figure out mongo better
-
 	c.JSON(http.StatusOK, game[0])
+}
+
+// getGames godoc
+// @Summary Get game by UUID
+// @Description Get a game by UUID
+// @Produce json
+// @Success 200
+// @Router /v1/games/setGameById [post]
+func setGameById(c *gin.Context) {
+	gameToSet := c.Query("id")
+	tgdbIDstr := c.Query("tgdbid")
+	if gameToSet == "" || tgdbIDstr == "" {
+		c.JSON(http.StatusBadRequest, "No UUID or IGDB ID Provided")
+		return
+	}
+
+	tgdbID, _ := strconv.Atoi(tgdbIDstr)
+
+	game, err := db.GetGameByID(gamedb, ctx, gameToSet)
+	if err != nil {
+		log.Fatal(err)
+	}
+	game[0] = search.TGDBsearchGameByID(apikey, tgdbID, game[0])
+	db.AddGame(gamedb, ctx, game[0])
+	c.JSON(200, gin.H{"status": "ID Assigned"})
 }
 
 // getPlatforms godoc

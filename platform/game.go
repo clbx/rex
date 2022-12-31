@@ -27,5 +27,9 @@ func CompareGames(game0 Game, game1 Game) bool {
 		return false
 	}
 
+	if game0.TGDBID != game1.TGDBID {
+		return false
+	}
+
 	return true
 }

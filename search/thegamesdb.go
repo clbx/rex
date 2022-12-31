@@ -59,8 +59,8 @@ var PlatformMapping = map[string]int{
 	"gcn": 2,
 }
 
-//TODO: Split this up into get ID and get Game
-func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
+// TGDBseachGameByName searches for a game with a game object and returns an integer array of game IDs
+func TGDBsearchGameByName(apikey string, game platform.Game) []int {
 	req := "https://api.thegamesdb.net/v1/Games/ByGameName?apikey=" + url.QueryEscape(apikey) +
 		"&name=" + url.QueryEscape(game.Name) +
 		"&fields=" + url.QueryEscape("players, publishers, genres, overview, last_updated, rating, platform, coop, youtube, os, processor, ram, hdd, video, sound, alternates,overview,rating") +
@@ -85,14 +85,36 @@ func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 	//If there are no games, just return what was put in.
 	if tgdbResp.Data.Count == 0 {
 		log.Printf("GAME NOT FOUND")
-		return game
+		return []int{-1}
 	}
 
 	//If game is returned for multiple platforms, return the one for the current platform and game region.
 	// TODO: Implement Region Filtering. Right now just search for US games (Presumably 1 in TGDB??)
 	if tgdbResp.Data.Count > 1 {
-		log.Printf("MULTIPLE GAMES RECEVIED")
-		return game
+		log.Printf("MULTIPLE GAMES RECEVIED - NOT SUPPORTED YET")
+		return []int{-1}
+	}
+
+	return []int{tgdbResp.Data.Games[0].ID}
+}
+
+func TGDBsearchGameByID(apikey string, tgdbid int, game platform.Game) platform.Game {
+	req := "https://api.thegamesdb.net/v1/Games/ByGameID?apikey=" + url.QueryEscape(apikey) +
+		"&id=" + url.QueryEscape(strconv.Itoa(tgdbid)) +
+		"&fields=" + url.QueryEscape("players, publishers, genres, overview, last_updated, rating, platform, coop, youtube, os, processor, ram, hdd, video, sound, alternates,overview,rating") +
+		"&include=" + url.QueryEscape("boxart")
+
+	tgdbResp := &TGDBResponse{}
+	res, err := http.Get(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	err = json.Unmarshal(body, &tgdbResp)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	//Get image filename.
@@ -120,14 +142,12 @@ func TGDBsearchGameByName(apikey string, game platform.Game) platform.Game {
 		log.Fatal(err)
 	}
 
-	return platform.Game{
-		ID:              game.ID,
-		Name:            tgdbResp.Data.Games[0].GameTitle,
-		Platform:        game.Platform,
-		TGDBID:          tgdbResp.Data.Games[0].ID,
-		Path:            game.Path,
-		ReleaseDate:     tgdbResp.Data.Games[0].ReleaseDate,
-		Overview:        tgdbResp.Data.Games[0].Overview,
-		BoxartFrontPath: fmt.Sprintf("/cache/front-%s.jpg", strconv.Itoa(tgdbResp.Data.Games[0].ID)),
-	}
+	game.Name = tgdbResp.Data.Games[0].GameTitle
+	game.TGDBID = tgdbResp.Data.Games[0].ID
+	game.ReleaseDate = tgdbResp.Data.Games[0].ReleaseDate
+	game.Overview = tgdbResp.Data.Games[0].Overview
+	game.BoxartFrontPath = fmt.Sprintf("/cache/front-%s.jpg", strconv.Itoa(tgdbResp.Data.Games[0].ID))
+
+	return game
+
 }
