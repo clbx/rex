@@ -21,3 +21,11 @@ Development Goals:
 - [ ] Easy to use container 
 - [ ] Highly configurable
 
+
+
+### notes
+
+- Generate swag docs
+    ``swag init -g rex.go``
+
+cover art: https://emumovies.com

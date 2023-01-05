@@ -2,18 +2,18 @@ import React, { useState, useEffect } from "react";
 import { apiURL } from "../util/api";
 
 import SearchInput from "../Search/SearchInput";
-import FilterCountry from "../FilterCountry/FilterCountry";
+import FilterPlatform from "../FilterPlatform/FilterPlatform";
 
 import { Link } from "react-router-dom";
 
 import unknown from "../../assets/unknown.jpg"
 
-const AllCountries = () => {
-  const [countries, setCountries] = useState([]);
+const AllGames = () => {
+  const [games, setGames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const getAllCountries = async () => {
+  const getAllGames = async () => {
     try {
       const res = await fetch(`${apiURL}/v1/games`);
 
@@ -23,7 +23,7 @@ const AllCountries = () => {
 
       console.log(data);
 
-      setCountries(data);
+      setGames(data);
 
       setIsLoading(false);
     } catch (error) {
@@ -32,14 +32,14 @@ const AllCountries = () => {
     }
   };
 
-  const getCountryByName = async (countryName) => {
+  const getGameByName = async (gameyName) => {
     try {
-      const res = await fetch(`${apiURL}/name/${countryName}`);
-
-      if (!res.ok) throw new Error("Not found any country!");
+      const res = await fetch(`${apiURL}/v1/games`);
+      // Filter Through Titles
+      if (!res.ok) throw new Error("No games found");
 
       const data = await res.json();
-      setCountries(data);
+      setGames(data);
 
       setIsLoading(false);
     } catch (error) {
@@ -48,14 +48,14 @@ const AllCountries = () => {
     }
   };
 
-  const getCountryByRegion = async (regionName) => {
+  const getGameByPlatform = async (regionName) => {
     try {
-      const res = await fetch(`${apiURL}/region/${regionName}`);
+      const res = await fetch(`${apiURL}/v1/games/byPlatform`);
 
       if (!res.ok) throw new Error("Failed..........");
 
       const data = await res.json();
-      setCountries(data);
+      setGames(data);
 
       setIsLoading(false);
     } catch (error) {
@@ -65,18 +65,18 @@ const AllCountries = () => {
   };
 
   useEffect(() => {
-    getAllCountries();
+    getAllGames();
   }, []);
 
   return (
     <div className="all__country__wrapper">
       <div className="country__top">
         <div className="search">
-          <SearchInput onSearch={getCountryByName} />
+          <SearchInput onSearch={getGameByName} />
         </div>
 
         <div className="filter">
-          <FilterCountry onSelect={getCountryByRegion} />
+          <FilterPlatform onSelect={getGameByPlatform} />
         </div>
       </div>
 
@@ -85,7 +85,7 @@ const AllCountries = () => {
         {error && !isLoading && <h4>{error}</h4>}
 
 
-        {countries?.map((game) => (
+        {games?.map((game) => (
           <Link to={`/games/${game.ID}`}>
             <div className="country__card">
               <div className="country__img">
@@ -100,13 +100,6 @@ const AllCountries = () => {
 
               <div className="country__data">
                 <h3>{game.Name}</h3>
-                {/* <h6>
-                  {" "}
-                  Population:{" "}
-                  {new Intl.NumberFormat().format(country.population)}
-                </h6>
-                <h6> Region: {country.region}</h6>
-                <h6>Capital: {country.capital}</h6> */}
               </div>
             </div>
           </Link>
@@ -116,4 +109,4 @@ const AllCountries = () => {
   );
 };
 
-export default AllCountries;
+export default AllGames;

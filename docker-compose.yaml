@@ -11,12 +11,12 @@ services:
     - ./testdir:/games
     - ./cache:/cache
     - ./config.yaml:/config/config.yaml
-  rex-frontend:
-    build:
-      dockerfile: frontend.Dockerfile
-    ports:
-    - "80:80"
-    - "443:443"
+  # rex-frontend:
+  #   build:
+  #     dockerfile: frontend.Dockerfile
+  #   ports:
+  #   - "80:80"
+  #   - "443:443"
   mongodb:
     image: mongo:latest
     command: mongod --quiet --logpath /dev/null 

@@ -42,11 +42,11 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// @title Rex
+// @title       Rex
 // @description Self Hostable Game Library
-// @host localhost:8080
-// @BasePath /
-// @schemes http
+// @host        localhost:8080
+// @BasePath    /
+// @schemes     http
 func main() {
 
 	r := gin.Default()
@@ -138,12 +138,12 @@ func findGames() {
 }
 
 // ping godoc
-// @Summary Ping!
+// @Summary     Ping!
 // @Description Pong!
-// @Accept */*
-// @Produce json
-// @Success 200 {object} string
-// @Router /v1/ping [get]
+// @Accept      */*
+// @Produce     json
+// @Success     200 {object} string
+// @Router      /v1/ping [get]
 func ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
@@ -151,11 +151,11 @@ func ping(c *gin.Context) {
 }
 
 // getGames godoc
-// @Summary Get All Games
+// @Summary     Get All Games
 // @Description Get a list of all of the games that Rex can find
-// @Produce json
-// @Success 200
-// @Router /v1/games [get]
+// @Produce     json
+// @Success     200
+// @Router      /v1/games [get]
 func getGames(c *gin.Context) {
 	allGames, err := db.GetAllGames(gamedb, ctx)
 	if err != nil {
@@ -167,11 +167,12 @@ func getGames(c *gin.Context) {
 }
 
 // getGames godoc
-// @Summary Get game by UUID
+// @Summary     Get game by UUID
 // @Description Get a game by UUID
-// @Produce json
-// @Success 200
-// @Router /v1/games/byId [get]
+// @Produce     json
+// @Success     200
+// @Router      /v1/games/byId [get]
+// @Param		id path string true "ID of the game to search for"
 func getGamesById(c *gin.Context) {
 	gameId := c.Query("id")
 	if gameId == "" {
@@ -188,11 +189,11 @@ func getGamesById(c *gin.Context) {
 }
 
 // getGames godoc
-// @Summary Get game by UUID
+// @Summary     Get game by UUID
 // @Description Get a game by UUID
-// @Produce json
-// @Success 200
-// @Router /v1/games/setGameById [post]
+// @Produce     json
+// @Success     200
+// @Router      /v1/games/setGameById [post]
 func setGameById(c *gin.Context) {
 	gameToSet := c.Query("id")
 	tgdbIDstr := c.Query("tgdbid")
@@ -213,11 +214,11 @@ func setGameById(c *gin.Context) {
 }
 
 // getPlatforms godoc
-// @Summary Get platforms with games
+// @Summary     Get platforms with games
 // @Description Returns a list of platforms with games in the library
-// @Produce json
-// @Sucess 200
-// @Router /v1/platforms [get]
+// @Produce     json
+// @Sucess      200
+// @Router      /v1/platforms [get]
 func getPlatforms(c *gin.Context) {
 	c.JSON(http.StatusOK, platforms)
 }

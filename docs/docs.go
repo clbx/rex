@@ -30,6 +30,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/games/byId": {
+            "get": {
+                "description": "Get a game by UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get game by UUID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the game to search for",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/v1/games/setGameById": {
+            "post": {
+                "description": "Get a game by UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get game by UUID",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/v1/ping": {
             "get": {
                 "description": "Pong!",
@@ -48,6 +85,16 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/v1/platforms": {
+            "get": {
+                "description": "Returns a list of platforms with games in the library",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get platforms with games",
+                "responses": {}
             }
         }
     }

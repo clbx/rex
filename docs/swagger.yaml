@@ -14,6 +14,30 @@ paths:
         "200":
           description: OK
       summary: Get All Games
+  /v1/games/byId:
+    get:
+      description: Get a game by UUID
+      parameters:
+      - description: ID of the game to search for
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get game by UUID
+  /v1/games/setGameById:
+    post:
+      description: Get a game by UUID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get game by UUID
   /v1/ping:
     get:
       consumes:
@@ -27,6 +51,13 @@ paths:
           schema:
             type: string
       summary: Ping!
+  /v1/platforms:
+    get:
+      description: Returns a list of platforms with games in the library
+      produces:
+      - application/json
+      responses: {}
+      summary: Get platforms with games
 schemes:
 - http
 swagger: "2.0"
