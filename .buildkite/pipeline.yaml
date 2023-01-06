@@ -25,6 +25,8 @@ steps:
         agent-token-secret-key: buildkite-agent-token
         mount-secret: build-secrets:/secrets
         use-agent-node-affinity: true
+        # needed until I get unprivileged buildah working or check out kaniko
+        privileged: true
         init_image: ""
         always-pull: true
   - key: push-backend
@@ -40,5 +42,7 @@ steps:
         agent-token-secret-key: buildkite-agent-token
         mount-secret: build-secrets:/secrets
         use-agent-node-affinity: true
+        # needed until I get unprivileged buildah working or check out kaniko
+        privileged: true
         init_image: ""
         always-pull: true
