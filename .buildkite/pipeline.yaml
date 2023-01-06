@@ -1,4 +1,41 @@
 steps:
-  - label: "Test"
-    commands:
-    - echo "test"
+  - key: init
+    label: "init"
+    command:
+    - "/scripts/rex-init.sh"
+    plugins:
+    - greymatter-io/k8s:
+        image: clbx/rex-build
+        secret-name: build-secrets
+        agent-token-secret-key: buildkite-agent-token
+        mount-secret: build-secrets:/secrets
+        init_image: ""
+        always-pull: true
+  - key: build-backend
+    label: "Build Rex Backend"
+    command:
+    - "/scripts/rex-build-backend.sh"
+    depends_on:
+    - init
+    plugins:
+    - greymatter-io/k8s:
+        image: clbx/rex-build
+        secret-name: build-secrets
+        agent-token-secret-key: buildkite-agent-token
+        mount-secret: build-secrets:/secrets
+        init_image: ""
+        always-pull: true
+- key: push-backend
+    label: "Push Rex Backend"
+    command:
+    - "/scripts/rex-push-backend.sh"
+    depends_on:
+    - build-backend
+    plugins:
+    - greymatter-io/k8s:
+        image: clbx/rex-build
+        secret-name: build-secrets
+        agent-token-secret-key: buildkite-agent-token
+        mount-secret: build-secrets:/secrets
+        init_image: ""
+        always-pull: true
