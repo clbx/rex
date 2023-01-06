@@ -6,7 +6,7 @@ tar -xvf rex-repository.tar
 cd rex
 
 # Build Backend Container
-buildah bud --layers -f backend.Dockerfile -t clbx/rex .
+buildah bud --isolation chroot --layers -f backend.Dockerfile -t clbx/rex .
 
 # Export the image to a tarball
 buildah push clbx/rex oci-archive:/build/rex-backend-container.tar 
