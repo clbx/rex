@@ -8,7 +8,7 @@ LABEL name="catalog-build" \
 
 # Install Required Packages
 RUN apk update
-RUN apk add curl wget git bash go buildah npm 
+RUN apk add curl wget git bash go buildah npm openssh
 
 # Install Buildkite
 RUN mkdir /buildkite && cd /buildkite
