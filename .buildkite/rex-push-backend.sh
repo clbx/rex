@@ -14,7 +14,7 @@ if [[ -n "$BUILDKITE_TAG" ]]; then
     buildah tag $container_hash clbx/rex:${BUILDKITE_TAG:1}
     buildah push clbx/rex:${BUILDKITE_TAG:1}
 else
-    if [[ "BUILDKITE_BRANCH" == "main" ]]; then
+    if [[ "$BUILDKITE_BRANCH" == "main" ]]; then
         echo "Main Branch, tagging: clbx/rex:latest"
         buildah tag $container_hash clbx/rex:latest
         buildah push clbx/rex:latest
