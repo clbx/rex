@@ -3,7 +3,7 @@
 # Login to DockerHub
 buildah login -u clbx --password-stdin < /secrets/docker-access-token docker.io
 
-buildkite-agent artifact download "rex-backend-container.tar" --step "build_backend" --build $BUILDKITE_BUILD_ID .
+buildkite-agent artifact download "rex-backend-container.tar" --step "build-backend" --build $BUILDKITE_BUILD_ID .
 
 container_hash=`buildah pull oci-archive:rex-backend-container.tar`
 

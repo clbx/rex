@@ -6,9 +6,12 @@ LABEL name="catalog-build" \
     maintainers="prod-ops@greymatter.io" \
     base="alpine"
 
-# Install Required Packages
+# Install Required Build Packages
 RUN apk update
-RUN apk add curl wget git bash go buildah npm openssh
+RUN apk add curl wget git bash go npm openssh
+
+# Install Buildah
+RUN apk add buildah cni-plugins iptables ip6tables
 
 # Install Buildkite
 RUN mkdir /buildkite && cd /buildkite
