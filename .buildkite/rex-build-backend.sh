@@ -11,4 +11,4 @@ buildah bud --isolation chroot --layers -f backend.Dockerfile -t clbx/rex .
 # Export the image to a tarball
 buildah push clbx/rex oci-archive:/build/rex-backend-container.tar 
 # Upload artifact 
-buildkite-agent artifact upload rex-backend-container.tar
+buildkite-agent artifact upload /build/rex-backend-container.tar
