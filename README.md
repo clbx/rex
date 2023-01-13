@@ -1,4 +1,8 @@
-# Rex
+<p align="center">
+  <img width="460" height="300" src="https://github.com/clbx/rex/blob/main/logo.png?raw=true">
+</p>
+
+
 
 Self-Hostable Game Library
 
